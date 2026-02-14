@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoMarket - Teslimat Onayı</title>
+  <script src="config.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .logo {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2e7d32;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    /* Loading state */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #e8f5e9;
+      border-top: 4px solid #2e7d32;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Success state */
+    .success {
+      display: none;
+    }
+
+    .success.show {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .checkmark {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #4caf50, #2e7d32);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: success-pop 0.5s ease;
+    }
+
+    @keyframes success-pop {
+      0% {
+        transform: scale(0);
+      }
+
+      50% {
+        transform: scale(1.2);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .checkmark svg {
+      width: 50px;
+      height: 50px;
+      fill: white;
+    }
+
+    .success-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #2e7d32;
+      margin-bottom: 10px;
+    }
+
+    .success-text {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .points-badge {
+      background: linear-gradient(135deg, #4caf50, #2e7d32);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 20px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    /* Error state */
+    .error {
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .error-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #f44336, #c62828);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .error-icon svg {
+      width: 50px;
+      height: 50px;
+      fill: white;
+    }
+
+    .error-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #c62828;
+      margin-bottom: 10px;
+    }
+
+    .error-text {
+      font-size: 16px;
+      color: #666;
+    }
+
+    .product-info {
+      background: #f5f5f5;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .product-name {
+      font-weight: 600;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .market-name {
+      color: #666;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="logo">🌿</div>
+    <div class="title">EcoMarket</div>
+    <div class="subtitle">Teslimat Onay Sistemi</div>
+
+    <!-- Loading State -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Rezervasyon kontrol ediliyor...</p>
+    </div>
+
+    <!-- Success State -->
+    <div class="success" id="success">
+      <div class="checkmark">
+        <svg viewBox="0 0 24 24">
+          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+        </svg>
+      </div>
+      <div class="success-title">✅ Teslimat Onaylandı!</div>
+      <div class="success-text">Puanlar hesabınıza yüklendi</div>
+      <div class="points-badge" id="points-badge">+50 Puan ⭐</div>
+      <div class="product-info">
+        <div class="product-name" id="product-name"></div>
+        <div class="market-name" id="market-name"></div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="error" id="error">
+      <div class="error-icon">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+        </svg>
+      </div>
+      <div class="error-title">❌ Geçersiz Kod</div>
+      <div class="error-text" id="error-text">Bu kod geçerli değil veya zaten kullanılmış.</div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, doc, getDoc, updateDoc, increment, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Get reservation ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const reservationId = urlParams.get('id');
+
+    const loadingEl = document.getElementById('loading');
+    const successEl = document.getElementById('success');
+    const errorEl = document.getElementById('error');
+    const errorTextEl = document.getElementById('error-text');
+    const pointsBadgeEl = document.getElementById('points-badge');
+    const productNameEl = document.getElementById('product-name');
+    const marketNameEl = document.getElementById('market-name');
+
+    function showError(message) {
+      loadingEl.style.display = 'none';
+      errorEl.classList.add('show');
+      errorTextEl.textContent = message;
+    }
+
+    function showSuccess(productName, marketName, points) {
+      loadingEl.style.display = 'none';
+      successEl.classList.add('show');
+      productNameEl.textContent = productName;
+      marketNameEl.textContent = marketName;
+      pointsBadgeEl.textContent = `+${points} Puan ⭐`;
+    }
+
+    async function verifyReservation() {
+      if (!reservationId) {
+        showError('Rezervasyon ID\'si bulunamadı');
+        return;
+      }
+
+      try {
+        // Get reservation document
+        const reservationRef = doc(db, 'reservations', reservationId);
+        const reservationDoc = await getDoc(reservationRef);
+
+        if (!reservationDoc.exists()) {
+          showError('Rezervasyon bulunamadı');
+          return;
+        }
+
+        const data = reservationDoc.data();
+
+        // Check if already completed
+        if (data.status === 'completed') {
+          showError('Bu rezervasyon zaten tamamlanmış');
+          return;
+        }
+
+        // Check if cancelled
+        if (data.status === 'cancelled') {
+          showError('Bu rezervasyon iptal edilmiş');
+          return;
+        }
+
+        // Get user reference
+        const userId = data.userId;
+        const earnedPoints = data.earnedPoints || 50;
+        const co2Saved = data.co2Saved || 0.5;
+        const originalPrice = data.originalPrice || 0;
+        const discountedPrice = data.discountedPrice || 0;
+        const savedMoney = originalPrice - discountedPrice;
+        const savedKilo = data.savedKilo || 0;
+
+        // Update reservation status
+        await updateDoc(reservationRef, {
+          status: 'completed',
+          completedAt: serverTimestamp()
+        });
+
+        // Update user stats
+        const userRef = doc(db, 'users', userId);
+        await updateDoc(userRef, {
+          ecoPoints: increment(earnedPoints),
+          totalCo2Saved: increment(co2Saved),
+          savedMoney: increment(savedMoney),
+          savedKilo: increment(savedKilo)
+        });
+
+        // Show success
+        showSuccess(
+          data.productName || 'Ürün',
+          data.marketName || 'Market',
+          earnedPoints
+        );
+
+      } catch (error) {
+        console.error('Error:', error);
+        showError('Bir hata oluştu: ' + error.message);
+      }
+    }
+
+    // Run verification
+    verifyReservation();
+  </script>
+</body>
+
+</html>
