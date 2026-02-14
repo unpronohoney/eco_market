@@ -38,4 +38,4 @@ To run this project locally:
 > **Note:** This project uses Firebase and Google Maps. You need to provide your own `google-services.json`, `GoogleService-Info.plist`, and API keys to build successfully.
 
 ---
-*Developed as part of the Geleceği Yazanlar Program.*
+*Developed by Mirza Bal.*
